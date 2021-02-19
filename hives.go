@@ -42,6 +42,7 @@ import (
 	_ "github.com/muesli/beehive/bees/htmlextractbee"
 	_ "github.com/muesli/beehive/bees/httpbee"
 	_ "github.com/muesli/beehive/bees/huebee"
+	_ "github.com/muesli/beehive/bees/imapbee"
 	_ "github.com/muesli/beehive/bees/instapaperbee"
 	_ "github.com/muesli/beehive/bees/ipifybee"
 	_ "github.com/muesli/beehive/bees/ircbee"
