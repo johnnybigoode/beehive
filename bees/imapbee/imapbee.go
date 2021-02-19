@@ -47,9 +47,9 @@ func (mod *ImapBee) Action(action bees.Action) []bees.Placeholder {
 
 func (mod *ImapBee) checkForEmails() {
 	log.Println("Connecting to server...")
-	server := "imap.gmail.com:993"
-	username := ""
-	password := ""
+	server := mod.server
+	username := mod.username
+	password := mod.password
 
 	// Connect to server
 	c, err := client.DialTLS(server, nil)
@@ -119,6 +119,16 @@ func (mod *ImapBee) checkForEmails() {
 }
 
 func (mod *ImapBee) Run(eventChan chan bees.Event) {
+	log.Println("Server get test")
+	log.Println("mod.server")
+	log.Println(mod.server)
+	log.Println("mod")
+	log.Println(mod)
+	log.Println("mod.username")
+	log.Println(mod.username)
+	log.Println("mod.passwotd")
+	log.Println(mod.password)
+
 	mod.checkForEmails()
 
 	/*	ev := bees.Event{
@@ -133,4 +143,8 @@ func (mod *ImapBee) Run(eventChan chan bees.Event) {
 // ReloadOptions parses the config options and initializes the Bee.
 func (mod *ImapBee) ReloadOptions(options bees.BeeOptions) {
 	mod.SetOptions(options)
+
+	options.Bind("account", &mod.username)
+	options.Bind("password", &mod.password)
+	options.Bind("server", &mod.server)
 }
