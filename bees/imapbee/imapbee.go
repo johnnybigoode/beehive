@@ -24,7 +24,6 @@ import (
 	"log"
 	"time"
 
-	"github.com/emersion/go-imap"
 	"github.com/emersion/go-imap/client"
 
 	"github.com/muesli/beehive/bees"
@@ -46,7 +45,7 @@ func (mod *ImapBee) Action(action bees.Action) []bees.Placeholder {
 	return outs
 }
 
-func (mod *ImapBee) checkForEmails() {
+func (mod *ImapBee) getTotalMessages() int {
 	log.Println("Connecting to server...")
 	server := mod.server
 	username := mod.username
@@ -72,35 +71,12 @@ func (mod *ImapBee) checkForEmails() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	log.Println("Flags for INBOX:", mbox.Flags)
 
-	// Get the last 4 messages
-	from := uint32(1)
-	to := mbox.Messages
-	if mbox.Messages > 3 {
-		// We're using unsigned integers here, only subtract if the result is > 0
-		from = mbox.Messages - 3
-	}
-	seqset := new(imap.SeqSet)
-	seqset.AddRange(from, to)
-
-	messages := make(chan *imap.Message, 10)
-	done = make(chan error, 1)
-	go func() {
-		done <- c.Fetch(seqset, []imap.FetchItem{imap.FetchEnvelope}, messages)
-	}()
-
-	log.Println("Last 4 messages:")
-	for msg := range messages {
-		log.Println("* " + msg.Envelope.Subject)
-	}
-
-	if err := <-done; err != nil {
-		log.Fatal(err)
-	}
-
+	totalMessages := mbox.Messages
+	log.Println("totalMessages: ")
+	log.Println(totalMessages)
 	log.Println("Done!")
-
+	return int(totalMessages)
 }
 
 func (mod *ImapBee) Run(eventChan chan bees.Event) {
@@ -120,14 +96,20 @@ func (mod *ImapBee) Run(eventChan chan bees.Event) {
 
 	//oldIP := mod.getIP("", eventChan)
 
+	totalMessages := mod.getTotalMessages()
+	previousTotalMessages := 0
+
 	for {
 		select {
 		case <-mod.SigChan:
 			return
 		case <-time.After(time.Duration(15) * time.Second):
 			mod.LogDebugf("Retrieving data from IMAP:")
-			log.Println("imap pls d")
-			mod.checkForEmails()
+			previousTotalMessages = totalMessages
+			totalMessages := mod.getTotalMessages()
+			if totalMessages > previousTotalMessages {
+				log.Println("You got mail!")
+			}
 		}
 	}
 	/*	ev := bees.Event{
