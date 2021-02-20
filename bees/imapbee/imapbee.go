@@ -67,24 +67,8 @@ func (mod *ImapBee) checkForEmails() {
 	}
 	log.Println("Logged in")
 
-	// List mailboxes
-	mailboxes := make(chan *imap.MailboxInfo, 10)
-	done := make(chan error, 1)
-	go func() {
-		done <- c.List("", "*", mailboxes)
-	}()
-
-	log.Println("Mailboxes:")
-	for m := range mailboxes {
-		log.Println("* " + m.Name)
-	}
-
-	if err := <-done; err != nil {
-		log.Fatal(err)
-	}
-
 	// Select INBOX
-	mbox, err := c.Select("INBOX", false)
+	mbox, err := c.Select("INBOX", true) //read-only = true
 	if err != nil {
 		log.Fatal(err)
 	}
