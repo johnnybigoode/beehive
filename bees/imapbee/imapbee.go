@@ -22,6 +22,7 @@ package imapbee
 
 import (
 	"log"
+	"time"
 
 	"github.com/emersion/go-imap"
 	"github.com/emersion/go-imap/client"
@@ -129,8 +130,22 @@ func (mod *ImapBee) Run(eventChan chan bees.Event) {
 	log.Println("mod.passwotd")
 	log.Println(mod.password)
 
-	mod.checkForEmails()
+	// if mod.interval < 1 {
+	// 	mod.interval = defaultUpdateInterval
+	// }
 
+	//oldIP := mod.getIP("", eventChan)
+
+	for {
+		select {
+		case <-mod.SigChan:
+			return
+		case <-time.After(time.Duration(15) * time.Second):
+			mod.LogDebugf("Retrieving data from IMAP:")
+			log.Println("imap pls d")
+			mod.checkForEmails()
+		}
+	}
 	/*	ev := bees.Event{
 			Bee: mod.Name(),
 			Name:      "hello",
